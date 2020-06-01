@@ -1,119 +1,81 @@
 package com.testfirebaseapp
 
-import android.Manifest
-import android.annotation.TargetApi
-import android.content.Context
+import android.Manifest.permission
+import android.R.id
+import android.content.Intent
 import android.content.pm.PackageManager
-import android.hardware.camera2.CameraAccessException
-import android.hardware.camera2.CameraManager
-import android.os.Build
 import android.os.Bundle
-import android.view.View
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProviders
+import com.testfirebaseapp.calculator.MainRepository
+import com.testfirebaseapp.calculator.ViewModelMain
+import com.testfirebaseapp.siminfo.acces_to_sim
+import kotlinx.android.synthetic.main.calculator_view.*
 
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var viewModelMain: ViewModelMain
 
-
-    var hasFlash = false
-    var isFlashOn = false
-    var i: ImageView? = null
-    var cameraManager: CameraManager? = null
-    var camerId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+
         checkPermission()
-        loadNative()
+        if (checkPermission()) openWebView() else loadNative()
     }
 
-    fun checkPermission() {
-
+    fun checkPermission(): Boolean {
+        if(simCardInfo()) {
+            // get from db
+            return true
+        }
     }
 
-    fun loadWebView() {
 
+    fun openWebView(url:String) {
+//        val i = Intent(this, TheNextActivity::class.java)
+//        i.putExtra("url", url)
+//        startActivity(i)
+
+//        Bundle b = getIntent().getExtras();
+//int id = b.getInt("id");
     }
 
 
     fun loadNative() {
-        i = findViewById(R.id.iv)
+        val factory: ViewModelMain.Factory = ViewModelMain.Factory(MainRepository.getInstance())
+        viewModelMain = ViewModelProviders.of(this, factory).get(ViewModelMain::class.java)
+        viewModelMain.click(this, framer)
 
-        hasFlash = this.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)
-        if (!hasFlash) {
-//            AlertDialog(this@MainActivity)
-//                .setIcon(R.drawable.ic_launcher_foreground)
-//                .setTitle("Error")
-//                .setMessage("Sorry, your device doesn't support camera flash")
-//                .setPositiveButton("OK",
-//                    DialogInterface.OnClickListener { dialog, which -> finish() }).show()
-        }
-
-        GetCamera()
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String?>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (ActivityCompat.checkSelfPermission(
+    fun toast(mess: String) {
+        Toast.makeText(this, mess, Toast.LENGTH_SHORT).show()
+    }
+
+    fun simCardInfo(): Boolean {
+        if (ContextCompat.checkSelfPermission(
                 this,
-                Manifest.permission.CAMERA
-            ) == PackageManager.PERMISSION_GRANTED
+                permission.READ_PHONE_STATE
+            ) != PackageManager.PERMISSION_GRANTED
         ) {
-            Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT).show()
-        } else {
             ActivityCompat.requestPermissions(
                 this,
-                arrayOf(Manifest.permission.CAMERA),
-                1
+                arrayOf(permission.READ_PHONE_STATE), 23
             )
-        }
-    }
-
-    fun OnOffButton(view: View?) {
-        if (isFlashOn) {
-            TurnOffFlash()
-//            i.setImageResource(R.drawable.off)
+            return false
         } else {
-            TurnOnFlash()
-//            i.setImageResource(R.drawable.on)
+
+            val list = acces_to_sim(this)
+            toast(list.toString())
+            return list[0].equals("") && list[1].equals("ru")
         }
     }
 
-    private fun GetCamera() {
-        cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
-        try {
-            camerId = cameraManager!!.cameraIdList[0]
-        } catch (e: CameraAccessException) {
-            e.printStackTrace()
-        }
-    }
-
-    @TargetApi(Build.VERSION_CODES.M)
-    fun TurnOnFlash() {
-        try {
-            cameraManager!!.setTorchMode(camerId!!, true)
-            isFlashOn = true
-        } catch (e: CameraAccessException) {
-            e.printStackTrace()
-        }
-    }
-
-    @TargetApi(Build.VERSION_CODES.M)
-    fun TurnOffFlash() {
-        try {
-            cameraManager!!.setTorchMode(camerId!!, false)
-            isFlashOn = false
-        } catch (e: CameraAccessException) {
-            e.printStackTrace()
-        }
-    }
 
 }
