@@ -8,6 +8,8 @@
     tools:context=".MainActivity">
 
 
+
+
     <include
         android:id="@+id/calculator_layout"
         layout="@layout/calculator_view"

@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity() {
         } else {
 
             val list = acces_to_sim(this)
-            toast((!list[0].equals("") && list[1].equals("ru")).toString())
+            toast(list.toString())
             return !list[0].equals("") && list[1].equals("ru")
         }
     }

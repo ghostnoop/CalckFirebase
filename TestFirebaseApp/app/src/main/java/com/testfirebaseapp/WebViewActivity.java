@@ -19,12 +19,11 @@ import java.util.Objects;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-//import butterknife.BindView;
-//import butterknife.ButterKnife;
+
 
 public class WebViewActivity extends AppCompatActivity {
 
-    public static final String TAG = WebViewActivity.class.getSimpleName();
+//    public static final String TAG = WebViewActivity.class.getSimpleName();
 
     @BindView(R.id.textView)
     TextView textView;
