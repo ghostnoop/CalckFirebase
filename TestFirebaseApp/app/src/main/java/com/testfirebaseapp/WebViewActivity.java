@@ -2,6 +2,7 @@ package com.testfirebaseapp;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.webkit.WebView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -13,8 +14,13 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.Objects;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+//import butterknife.BindView;
+//import butterknife.ButterKnife;
 
 public class WebViewActivity extends AppCompatActivity {
 
@@ -22,6 +28,10 @@ public class WebViewActivity extends AppCompatActivity {
 
     @BindView(R.id.textView)
     TextView textView;
+
+    @BindView(R.id.webview)
+    WebView webView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,20 +39,27 @@ public class WebViewActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        db.collection("data")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                Log.d(TAG, document.getId() + " => " + document.getData().get("value"));
-                                textView.setText("Data from Firestore: " + document.getData().get("value"));
-                            }
-                        } else {
-                            Log.w(TAG, "Error getting documents.", task.getException());
-                        }
-                    }
-                });
+
+        String url = Objects.requireNonNull(getIntent().getExtras()).getString("url");
+
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.loadUrl(url);
+
+//        db.collection("data")
+//                .get()
+//                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//                        if (task.isSuccessful()) {
+//                            for (QueryDocumentSnapshot document : task.getResult()) {
+//                                Log.d(TAG, document.getId() + " => " + document.getData().get("value"));
+//                                textView.setText("Data from Firestore: " + document.getData().get("value"));
+//                            }
+//                        } else {
+//                            Log.w(TAG, "Error getting documents.", task.getException());
+//                        }
+//                    }
+//                });
+
     }
 }

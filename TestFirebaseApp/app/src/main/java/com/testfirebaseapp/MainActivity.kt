@@ -1,56 +1,61 @@
 package com.testfirebaseapp
 
 import android.Manifest.permission
-import android.R.id
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProviders
+import com.google.firebase.firestore.FirebaseFirestore
 import com.testfirebaseapp.calculator.MainRepository
 import com.testfirebaseapp.calculator.ViewModelMain
 import com.testfirebaseapp.siminfo.acces_to_sim
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.calculator_view.*
+import kotlinx.android.synthetic.main.calculator_view.view.*
 
 
 class MainActivity : AppCompatActivity() {
     private lateinit var viewModelMain: ViewModelMain
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-
         checkPermission()
-        if (checkPermission()) openWebView() else loadNative()
+//        if (checkPermission()) openWebView() else loadNative()
     }
 
-    fun checkPermission(): Boolean {
-        if(simCardInfo()) {
-            // get from db
-            return true
+    fun checkPermission() {
+        if (simCardInfo()) {
+            dataFromFireBase()
+        } else {
+            loadNative()
         }
     }
 
 
-    fun openWebView(url:String) {
-//        val i = Intent(this, TheNextActivity::class.java)
-//        i.putExtra("url", url)
-//        startActivity(i)
+    fun openWebView(url: String) {
+        val i = Intent(this, WebViewActivity::class.java)
+        i.putExtra("url", url)
+        startActivity(i)
 
-//        Bundle b = getIntent().getExtras();
-//int id = b.getInt("id");
+
     }
 
 
     fun loadNative() {
+
+        calculator_layout.visibility = View.VISIBLE
         val factory: ViewModelMain.Factory = ViewModelMain.Factory(MainRepository.getInstance())
         viewModelMain = ViewModelProviders.of(this, factory).get(ViewModelMain::class.java)
-        viewModelMain.click(this, framer)
+
+        viewModelMain.click(this, calculator_layout)
 
     }
 
@@ -72,9 +77,26 @@ class MainActivity : AppCompatActivity() {
         } else {
 
             val list = acces_to_sim(this)
-            toast(list.toString())
-            return list[0].equals("") && list[1].equals("ru")
+            toast((!list[0].equals("") && list[1].equals("ru")).toString())
+            return !list[0].equals("") && list[1].equals("ru")
         }
+    }
+
+    fun dataFromFireBase() {
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("data")
+            .get()
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    for (document in task.result!!) {
+                        toast("Data from Firestore: " + document.data["value"])
+                        if (("" + document.data["value"]).isEmpty()) loadNative()
+                        else
+                            openWebView("" + document.data["value"])
+                    }
+                } else if (task.isCanceled) loadNative()
+            }
     }
 
 
