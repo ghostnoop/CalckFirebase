@@ -1,7 +1,10 @@
 package com.testfirebaseapp;
 
+import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.webkit.WebView;
 import android.widget.TextView;
 
@@ -13,6 +16,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.testfirebaseapp.web.CustomWebViewClient;
 
 import java.util.Objects;
 
@@ -20,45 +24,42 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
-
 public class WebViewActivity extends AppCompatActivity {
+    private WebView webView;
 
-//    public static final String TAG = WebViewActivity.class.getSimpleName();
 
-    @BindView(R.id.textView)
-    TextView textView;
-
-    @BindView(R.id.webview)
-    WebView webView;
-
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        settingUI();
         setContentView(R.layout.activity_web_view);
-        ButterKnife.bind(this);
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        webView = findViewById(R.id.webview);
+        webView.setWebViewClient(new CustomWebViewClient());
 
 
         String url = Objects.requireNonNull(getIntent().getExtras()).getString("url");
-
+        //todo cookies
         webView.getSettings().setJavaScriptEnabled(true);
         webView.loadUrl(url);
 
-//        db.collection("data")
-//                .get()
-//                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-//                        if (task.isSuccessful()) {
-//                            for (QueryDocumentSnapshot document : task.getResult()) {
-//                                Log.d(TAG, document.getId() + " => " + document.getData().get("value"));
-//                                textView.setText("Data from Firestore: " + document.getData().get("value"));
-//                            }
-//                        } else {
-//                            Log.w(TAG, "Error getting documents.", task.getException());
-//                        }
-//                    }
-//                });
 
+    }
+
+    private void settingUI() {
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+        decorView.setSystemUiVisibility(uiOptions);
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        if (webView.canGoBack()) {
+            webView.goBack();
+        } else {
+            super.onBackPressed();
+        }
     }
 }
