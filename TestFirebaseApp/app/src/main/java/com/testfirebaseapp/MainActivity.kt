@@ -4,7 +4,6 @@ import android.Manifest.permission
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -12,8 +11,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.testfirebaseapp.calculator.MainRepository
 import com.testfirebaseapp.calculator.ViewModelMain
 import com.testfirebaseapp.siminfo.acces_to_sim
@@ -27,21 +27,13 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        FirebaseFirestore.getInstance().clearPersistence()
 
         if (checkAndRequestPermissions()) checkPermission()
     }
 
 
-    fun checkPermission() {
-        if (simCardInfo()) {
-            dataFromFireBase()
-        } else {
-            loadNative()
-        }
-    }
-
-
-    fun openWebView(url: String) {
+    private fun openWebView(url: String) {
         val i = Intent(this, WebViewActivity::class.java)
         i.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         i.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
@@ -52,11 +44,11 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-
-    fun loadNative() {
+    private fun loadNative() {
         calculator_layout.visibility = View.VISIBLE
         val factory: ViewModelMain.Factory = ViewModelMain.Factory(MainRepository.getInstance())
-        viewModelMain = ViewModelProviders.of(this, factory).get(ViewModelMain::class.java)
+        viewModelMain = ViewModelProvider(this, factory).get(ViewModelMain::class.java)
+
         viewModelMain.click(this, calculator_layout)
 
     }
@@ -65,30 +57,46 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this, mess, Toast.LENGTH_SHORT).show()
     }
 
-    fun simCardInfo(): Boolean {
+    private fun simCardInfo(): Boolean {
         val list = acces_to_sim(this)
-        toast(list.toString())
         return !list[0].equals("") && list[1].equals("ru")
 
     }
 
-    fun dataFromFireBase() {
+    private fun dataFromFireBase() {
         val db = FirebaseFirestore.getInstance()
+
+        val settings = FirebaseFirestoreSettings.Builder()
+            .setPersistenceEnabled(false)
+            .build()
+        db.firestoreSettings = settings
+        var isLoaded = false
 
         db.collection("data")
             .get()
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     for (document in task.result!!) {
-                        toast("Data from Firestore: " + document.data["value"])
-                        if (("" + document.data["value"]).isEmpty()) loadNative()
+//                        toast("Data from Firestore: " + document.data["value"])
+                        isLoaded = true
+                        if (document.data["value"].toString().isEmpty()) loadNative()
                         else
                             openWebView("" + document.data["value"])
                     }
                 } else if (task.isCanceled) loadNative()
+                if (!isLoaded) loadNative()
             }
+
     }
 
+
+    private fun checkPermission() {
+        if (simCardInfo()) {
+            dataFromFireBase()
+        } else {
+            loadNative()
+        }
+    }
 
     private fun checkAndRequestPermissions(): Boolean {
         val permissionLocation =
@@ -163,8 +171,7 @@ class MainActivity : AppCompatActivity() {
             .setPositiveButton("Yes") { _, _ ->
                 startActivity(
                     Intent(
-                        android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                        Uri.parse("package:com.example.parsaniahardik.kotlin_marshmallowpermission")
+                        android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
                     )
                 )
             }

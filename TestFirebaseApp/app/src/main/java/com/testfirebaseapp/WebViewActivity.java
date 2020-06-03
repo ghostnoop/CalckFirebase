@@ -1,27 +1,13 @@
 package com.testfirebaseapp;
 
 import android.annotation.SuppressLint;
-import android.app.ActionBar;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
-import android.widget.TextView;
-
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.testfirebaseapp.web.CustomWebViewClient;
-
 import java.util.Objects;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 
 public class WebViewActivity extends AppCompatActivity {
@@ -41,6 +27,7 @@ public class WebViewActivity extends AppCompatActivity {
 
         String url = Objects.requireNonNull(getIntent().getExtras()).getString("url");
         //todo cookies
+        this.webView.getSettings().setDomStorageEnabled(true);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.loadUrl(url);
 
