@@ -4,8 +4,12 @@ import android.Manifest.permission
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.webkit.ValueCallback
+import android.webkit.WebChromeClient
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -30,6 +34,7 @@ class MainActivity : AppCompatActivity() {
         FirebaseFirestore.getInstance().clearPersistence()
 
         if (checkAndRequestPermissions()) checkPermission()
+
     }
 
 
@@ -179,5 +184,39 @@ class MainActivity : AppCompatActivity() {
         dialog.show()
     }
 
+
+    //image from webview
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (requestCode == REQUEST_SELECT_FILE) {
+                if (messageArray == null)
+                    return
+                messageArray!!.onReceiveValue(
+                    WebChromeClient.FileChooserParams.parseResult(
+                        resultCode,
+                        data
+                    )
+                )
+                messageArray = null
+            }
+        } else if (requestCode == FILECHOOSER_RESULTCODE) {
+            if (null == message)
+                return
+            val result =
+                if (data == null || resultCode != RESULT_OK) null else data.data
+            message!!.onReceiveValue(result)
+            message = null
+        } else {
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    companion object {
+        var message: ValueCallback<Uri>? = null
+        var messageArray: ValueCallback<Array<Uri>>? = null
+        val REQUEST_SELECT_FILE = 100
+        val FILECHOOSER_RESULTCODE = 1
+    }
 
 }
