@@ -4,12 +4,8 @@ import android.Manifest.permission
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.webkit.ValueCallback
-import android.webkit.WebChromeClient
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -27,6 +23,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
     private lateinit var viewModelMain: ViewModelMain
     private val REQUEST_ID_MULTIPLE_PERMISSIONS = 1
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,7 +62,10 @@ class MainActivity : AppCompatActivity() {
     private fun simCardInfo(): Boolean {
         val list = acces_to_sim(this)
         toast(list.toString())
-        return !list[0].equals("") && list[1].equals("ru") || list[1].equals("us")
+        val country = listOf("ru", "us")
+        //todo country
+
+        return list[0].isNotEmpty() && country.contains(list[1])
 
     }
 
@@ -187,8 +187,6 @@ class MainActivity : AppCompatActivity() {
         dialog.show()
     }
 
-
-    //image from webview
 
 
 

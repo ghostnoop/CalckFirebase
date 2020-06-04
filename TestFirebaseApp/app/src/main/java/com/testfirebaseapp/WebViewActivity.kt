@@ -1,16 +1,19 @@
 package com.testfirebaseapp
 
+
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.util.Log
+import android.webkit.CookieManager
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.testfirebaseapp.web.CustomWebViewClient
 import kotlinx.android.synthetic.main.activity_web_view.*
@@ -26,6 +29,11 @@ class WebViewActivity : AppCompatActivity() {
 
         webView.webViewClient = CustomWebViewClient()
 
+        CookieManager.getInstance().acceptCookie()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true)
+        }
+
 
         val url = intent.extras!!.getString("url")
 
@@ -33,12 +41,24 @@ class WebViewActivity : AppCompatActivity() {
         webView.settings.javaScriptEnabled = true
         webView.settings.allowFileAccess = true
         webView.settings.allowContentAccess = true
+        webView.settings.setAppCacheEnabled(true)
 
-        webView.loadUrl(url)
+        if (savedInstanceState == null) {
+            val prefs = this.getSharedPreferences("cookies", Context.MODE_PRIVATE)
+            val auth_cookie = prefs.getString("cookies", "null")
 
-        Log.e("N@@", Build.VERSION.SDK_INT.toString())
+            if (auth_cookie != "null") {
+                webView.loadUrl(url, mutableMapOf("Cookie" to auth_cookie))
+                Log.d("cookie", "cookie $auth_cookie set.")
+            } else
+                webView.loadUrl(url)
+        } else
+            webView.loadUrl(url)
+
+
+
+
         webView.webChromeClient = object : WebChromeClient() {
-
             override fun onShowFileChooser(
                 view: WebView,
                 filePath: ValueCallback<Array<Uri>>,
@@ -49,7 +69,6 @@ class WebViewActivity : AppCompatActivity() {
                     message = null
                 }
                 messageArray = filePath
-                Log.e("N@@", Build.VERSION.SDK_INT.toString())
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     val intent = fileChooserParams.createIntent()
                     intent.type = "image/*"
@@ -87,6 +106,18 @@ class WebViewActivity : AppCompatActivity() {
 
 
     }
+
+
+    override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
+        super.onSaveInstanceState(outState, outPersistentState)
+        webView.saveState(outState)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        webView.restoreState(savedInstanceState)
+    }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
