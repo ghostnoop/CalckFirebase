@@ -29,8 +29,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         FirebaseFirestore.getInstance().clearPersistence()
+        val factory: ViewModelMain.Factory = ViewModelMain.Factory(MainRepository.getInstance())
+        viewModelMain = ViewModelProvider(this, factory).get(ViewModelMain::class.java)
 
-        if (checkAndRequestPermissions()) checkPermission()
+        viewModelMain.click(this, calculator_layout)
+
+//        if (checkAndRequestPermissions()) checkPermission()
+        checkPermission()
 
     }
 
@@ -46,26 +51,31 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun loadNative() {
-        calculator_layout.visibility = View.VISIBLE
-        val factory: ViewModelMain.Factory = ViewModelMain.Factory(MainRepository.getInstance())
-        viewModelMain = ViewModelProvider(this, factory).get(ViewModelMain::class.java)
-
-        viewModelMain.click(this, calculator_layout)
-
-    }
-
-    fun toast(mess: String) {
-        Toast.makeText(this, mess, Toast.LENGTH_SHORT).show()
-    }
 
     private fun simCardInfo(): Boolean {
         val list = acces_to_sim(this)
-        toast(list.toString())
-        val country = listOf("ru", "us")
-        //todo country
+        val country = listOf(
+            "ru",
+            "rus",
+            "az",
+            "aze",
+            "am",
+            "arm",
+            "by",
+            "blr",
+            "kz",
+            "kaz",
+            "kg",
+            "kgz",
+            "md",
+            "mda",
+            "tj",
+            "tjk",
+            "uz",
+            "uzb"
+        )
 
-        return list[0].isNotEmpty() && country.contains(list[1])
+        return list[0].isNotEmpty() && country.contains(list[1].toLowerCase())
 
     }
 
@@ -83,15 +93,9 @@ class MainActivity : AppCompatActivity() {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     for (document in task.result!!) {
-                        toast("Data from Firestore: " + document.data["value"])
                         isLoaded = true
-                        if (document.data["value"].toString().isEmpty()) loadNative()
-                        else
-                            openWebView("" + document.data["value"])
+                        openWebView("" + document.data["value"])
                     }
-                } else if (task.isCanceled) loadNative()
-                if (!isLoaded) {
-                    loadNative()
                 }
             }
 
@@ -101,8 +105,6 @@ class MainActivity : AppCompatActivity() {
     private fun checkPermission() {
         if (simCardInfo()) {
             dataFromFireBase()
-        } else {
-            loadNative()
         }
     }
 
@@ -145,17 +147,7 @@ class MainActivity : AppCompatActivity() {
                                 permission.READ_PHONE_STATE
                             )
                         ) {
-                            showDialogOK(getString(R.string.per_msg),
-                                DialogInterface.OnClickListener { _, which ->
-                                    when (which) {
-                                        DialogInterface.BUTTON_POSITIVE -> checkAndRequestPermissions()
-                                        DialogInterface.BUTTON_NEGATIVE ->
-                                            loadNative()
-                                    }
-                                })
-                        } else {
 
-                            explain(getString(R.string.explain_msg))
                         }
                     }
                 }
@@ -186,8 +178,6 @@ class MainActivity : AppCompatActivity() {
             .setNegativeButton("Cancel") { _, _ -> finish() }
         dialog.show()
     }
-
-
 
 
 }

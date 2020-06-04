@@ -132,7 +132,6 @@ class WebViewActivity : AppCompatActivity() {
                 )
                 messageArray = null
             }
-            Toast.makeText(this, "$requestCode $FILECHOOSER_RESULTCODE", Toast.LENGTH_SHORT).show()
         } else if (requestCode == FILECHOOSER_RESULTCODE) {
             if (null == message)
                 return
