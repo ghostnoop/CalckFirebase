@@ -33,6 +33,9 @@ class WebViewActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_web_view)
 
+        progressBar.progress = 100
+
+
         webView.webViewClient = CustomWebViewClient()
         CookieManager.getInstance().acceptCookie()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -59,9 +62,9 @@ class WebViewActivity : AppCompatActivity() {
         } else
             webView.loadUrl(url)
 
-
-
-
+        webView.visibility = View.VISIBLE
+        progressBar.visibility = View.GONE
+        progressBar.progress = 0
         webView.webChromeClient = object : WebChromeClient() {
             override fun onShowFileChooser(
                 view: WebView,
