@@ -64,7 +64,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun simCardInfo(): Boolean {
         val list = acces_to_sim(this)
-        return !list[0].equals("") && list[1].equals("ru")
+        toast(list.toString())
+        return !list[0].equals("") && list[1].equals("ru") || list[1].equals("us")
 
     }
 
@@ -82,14 +83,16 @@ class MainActivity : AppCompatActivity() {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     for (document in task.result!!) {
-//                        toast("Data from Firestore: " + document.data["value"])
+                        toast("Data from Firestore: " + document.data["value"])
                         isLoaded = true
                         if (document.data["value"].toString().isEmpty()) loadNative()
                         else
                             openWebView("" + document.data["value"])
                     }
                 } else if (task.isCanceled) loadNative()
-                if (!isLoaded) loadNative()
+                if (!isLoaded) {
+                    loadNative()
+                }
             }
 
     }
