@@ -46,8 +46,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun openWebView(url: String) {
         val i = Intent(this, WebViewActivity::class.java)
-        i.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        i.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
         i.putExtra("url", url)
         startActivity(i)
         finish()

@@ -6,10 +6,10 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@android:color/white</item>
         <item name="colorAccent">@color/colorAccent</item>
-<!--        <item name="android:windowTranslucentStatus">true</item>-->
-<!--        <item name="android:windowTranslucentNavigation">true</item>-->
-        <item name="android:windowLightStatusBar">true</item>
-        <item name="android:windowActionBarOverlay">false</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+<!--        <item name="android:windowLightStatusBar">true</item>-->
+<!--        <item name="android:windowActionBarOverlay">false</item>-->
     </style>
 
     <style name="MyButton" parent="Widget.AppCompat.Button">
