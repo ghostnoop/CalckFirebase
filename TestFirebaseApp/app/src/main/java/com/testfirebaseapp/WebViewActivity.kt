@@ -1,21 +1,22 @@
 package com.testfirebaseapp
 
 import android.annotation.SuppressLint
-import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.view.View
-import android.webkit.*
+import android.os.PersistableBundle
+import android.util.Log
+import android.webkit.CookieManager
+import android.webkit.ValueCallback
+import android.webkit.WebChromeClient
+import android.webkit.WebView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.testfirebaseapp.web.CustomWebViewClient
 import kotlinx.android.synthetic.main.activity_web_view.*
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.*
 
 
 class WebViewActivity : AppCompatActivity() {
@@ -30,7 +31,10 @@ class WebViewActivity : AppCompatActivity() {
 
         webView.webViewClient = CustomWebViewClient()
 
-
+        CookieManager.getInstance().acceptCookie()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            CookieManager.getInstance().setAcceptThirdPartyCookies(webView,true)
+        }
 
         val url = intent.extras!!.getString("url")
 
@@ -40,11 +44,24 @@ class WebViewActivity : AppCompatActivity() {
         webView.settings.allowFileAccess = true
         webView.settings.allowFileAccess = true
         webView.settings.allowContentAccess = true
+        webView.settings.setAppCacheEnabled(true)
 
-        webView.loadUrl(url)
+        if (savedInstanceState == null) {
+            val prefs = this.getSharedPreferences("cookies", Context.MODE_PRIVATE)
+            val auth_cookie = prefs.getString("cookies", "null")
 
+            if (auth_cookie != "null") {
+                webView.loadUrl(url, mutableMapOf("Cookie" to auth_cookie))
+                Log.d("cookie", "cookie $auth_cookie set.")
+            } else
+                webView.loadUrl(url)
+        }
 
         webView.webChromeClient = object : WebChromeClient() {
+            fun shouldOverrideUrlLoading(view: WebView, url: String?): Boolean {
+                view.loadUrl(url)
+                return true
+            }
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             override fun onShowFileChooser(
                 view: WebView,
@@ -81,6 +98,17 @@ class WebViewActivity : AppCompatActivity() {
 
 
     }
+
+    override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
+        super.onSaveInstanceState(outState, outPersistentState)
+        webView.saveState(outState)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        webView.restoreState(savedInstanceState)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             if (requestCode == REQUEST_SELECT_FILE) {

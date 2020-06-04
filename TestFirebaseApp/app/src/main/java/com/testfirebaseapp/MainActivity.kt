@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
@@ -16,8 +17,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
+import com.google.firebase.iid.FirebaseInstanceId
 import com.testfirebaseapp.calculator.MainRepository
 import com.testfirebaseapp.calculator.ViewModelMain
 import com.testfirebaseapp.siminfo.acces_to_sim
@@ -27,6 +30,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
     private lateinit var viewModelMain: ViewModelMain
     private val REQUEST_ID_MULTIPLE_PERMISSIONS = 1
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
