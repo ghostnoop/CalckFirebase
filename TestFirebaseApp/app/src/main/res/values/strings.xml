@@ -1,5 +1,0 @@
-<resources>
-    <string name="app_name">Calculator</string>
-    <string name="per_msg">Service Permissions are required for this app</string>
-    <string name="explain_msg">"You need to give some mandatory permissions to continue. Do you want to go to app settings?</string>
-</resources>
