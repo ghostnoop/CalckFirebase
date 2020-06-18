@@ -1,34 +1,34 @@
 {
   "project_info": {
-    "project_number": "954820367469",
-    "firebase_url": "https://tokarev97-65ee7.firebaseio.com",
-    "project_id": "tokarev97-65ee7",
-    "storage_bucket": "tokarev97-65ee7.appspot.com"
+    "project_number": "798652491743",
+    "firebase_url": "https://luckyb-418a2.firebaseio.com",
+    "project_id": "luckyb-418a2",
+    "storage_bucket": "luckyb-418a2.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:954820367469:android:0ee6ca998b888dc1d01b64",
+        "mobilesdk_app_id": "1:798652491743:android:ffdbfe24c3cf23eac9466a",
         "android_client_info": {
-          "package_name": "com.testfirebaseapp"
+          "package_name": "com.bts.luckyluck"
         }
       },
       "oauth_client": [
         {
-          "client_id": "954820367469-5r5e54nsmnoso0l93mq4k6n48f0bosvk.apps.googleusercontent.com",
+          "client_id": "798652491743-mmov02tohd81a60e7363tpqkes9kjd5i.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBkwta59AfgkK3p7hWsoDrvC3wcPoa3wFA"
+          "current_key": "AIzaSyB0LPX20PFRfSkGOTjs1nlS9JdpOzJfe3c"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "954820367469-5r5e54nsmnoso0l93mq4k6n48f0bosvk.apps.googleusercontent.com",
+              "client_id": "798652491743-mmov02tohd81a60e7363tpqkes9kjd5i.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
